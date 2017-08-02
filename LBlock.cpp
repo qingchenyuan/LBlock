@@ -41,29 +41,27 @@ unsigned int S_Layer(unsigned int x)
 	{
 		temp^=S[7-i][(x>>(28-4*i)&0xF)];//starting from the MSB concatenate the corresponding value from the S-Box at the last 4 bits of temp
 		if (i!=7) temp<<=4; //add four zeroes at the end to support the XOR operation above unless i has reached 7, which signifies the end
-	}				
+	}
    // temp^=S[7-i][x&0xF]; //Alternatively use this instead of the if expression at the end of the loop
 	return temp; //return the calculated value
 }
- 
+
 //new bit permutation
 unsigned int P_Layer(unsigned int x)
 {
 	unsigned short temp[32],i;
 	unsigned int t=0x0;
-	for(i=0;i<32,i++)
-	{
-		temp[i]=(t>>(31-i))&0x1;
-	}
+	for(i=0;i<32;i++)
+	temp[i]=(t>>(31-i))&0x1;
 	for(i=0;i<32;i++)
 	{
-		t^temp[P[i]];
+		t^=temp[P[i]];
 		if(i!=31) x<<=1;
 	}
 	return t;
 }
 unsigned int F(unsigned int x, unsigned int k)//Rounding function F
-{ 
+{
 	x^=k; //X XOR K
 	x=S_Layer(x); //Confusion function with arguement X^K calculated above
 	x=P_Layer(x); //Diffusion function with arguement Confusion function from X^K calculated above
@@ -87,7 +85,7 @@ void codec(uint64_t text[1024], uint16_t a, uint64_t b, bool mod, uint64_t ans[1
 	#pragma HLS interface s_axilite port=a bundle=s_axi //a command, which allow the AXI4-Lite (s_axilite) interface to be introduced
 	#pragma HLS interface s_axilite port=b bundle=s_axi //a command, which allow the AXI4-Lite (s_axilite) interface to be introduced
 	#pragma HLS interface s_axilite port=mod bundle=s_axi //a command, which allow the AXI4-Lite (s_axilite) interface to be introduced
-	
+
 	unsigned int i; //a simple variable used for control of the loop below
 	unsigned int left, right; //2x32-bit variables used to store the split into two 32-bit parts plain text
 	unsigned int rk1[rounds]; // an array used to store the roundkey
@@ -99,9 +97,9 @@ void codec(uint64_t text[1024], uint16_t a, uint64_t b, bool mod, uint64_t ans[1
 			left = (text[j]>>32) & 0xFFFFFFFF;
 			right = text[j] & 0xFFFFFFFF;
 			roundkey(a,b,rk1); //calculating the roundkey
-			
-			
-			
+
+
+
 			if (mod == 1)
 			{
 				for(i=0;i<rounds;i++)
@@ -129,3 +127,4 @@ void codec(uint64_t text[1024], uint16_t a, uint64_t b, bool mod, uint64_t ans[1
 		}
 	}
 }
+
