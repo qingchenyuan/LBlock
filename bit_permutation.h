@@ -9,14 +9,14 @@ int main()
 	unsigned int t = 0x00, a[32];
 	unsigned short P[32] = { 0, 8, 16, 24, 4, 12, 20, 28, 1, 9, 17, 25, 5, 13, 21, 29, 2, 10, 18, 26, 6, 14, 22, 30, 3, 11, 19, 27, 7, 15, 23, 31 };
 	//cout << "the size is " << sizeof(unsigned short) << endl; //得到结果是2byte，也就是2x8=16bit
-	temp[0] = 0xf;//0000
-	temp[1] = 0x0;//0001
-	temp[2] = 0x0;//0010
-	temp[3] = 0x0;//0011
-	temp[4] = 0x0;//0100
-	temp[5] = 0x0;//0101
-	temp[6] = 0x0;//0110
-	temp[7] = 0x0;//0111
+	temp[0] = 0x0;//0000
+	temp[1] = 0xf;//0001
+	temp[2] = 0xf;//0010
+	temp[3] = 0xf;//0011
+	temp[4] = 0xf;//0100
+	temp[5] = 0xf;//0101
+	temp[6] = 0xf;//0110
+	temp[7] = 0xf;//0111
 	//cout << temp[7] << endl;
 	for (i = 0; i < 8; i++)
 	{
@@ -28,7 +28,6 @@ int main()
 	{
 		a[i] = (t >> (31 - i)) & 0x1;
 	}
-	cout << P[0] << endl;
 	for (i = 0; i < 32; i++)
 	{
 		x ^= a[P[i]];
