@@ -52,11 +52,11 @@ unsigned int P_Layer(unsigned int x)
 	unsigned short temp[32],i;
 	unsigned int t=0x0;
 	for(i=0;i<32;i++)
-	temp[i]=(t>>(31-i))&0x1;
+	temp[i]=(x>>(31-i))&0x1;
 	for(i=0;i<32;i++)
 	{
 		t^=temp[P[i]];
-		if(i!=31) x<<=1;
+		if(i!=31) t<<=1;
 	}
 	return t;
 }
