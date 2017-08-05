@@ -11,12 +11,26 @@
 #include "xstatus.h"
 #include "xuartps.h"
 #include "xuartps_hw.h"
-
+#include "xbram.h"
 
 XUartPs UartPs;
 XUartPs_Config *UartPs_Config;
 XCodec Codec;
+XBram_Config *Bram_Config;
+XBram Bram;
 
+void init_LBlock();
+
+
+
+int main()
+{
+	init_platform();
+	init_LBlock();
+	xil_printf("finished");
+	cleanup_platform();
+	return 0;
+}
 
 void init_LBlock()
 {
@@ -44,12 +58,16 @@ void init_LBlock()
 		return XST_FAILURE;
 	}
 
-}
-int main()
-{
-	init_platform();
-	init_LBlock();
-	xil_printf("finished");
-	cleanup_platform();
-	return 0;
+	Bram_Config = XBram_LookupConfig(XPAR_AXI_BRAM_CTRL_0_DEVICE_ID);
+	Status = XBram_CfgInitialize(&Bram, Bram_Config,Bram_Config->CtrlBaseAddress);
+	if (Status != XST_SUCCESS)
+	{
+		return XST_FAILURE;
+	}
+	Status = XBram_SelfTest(&Bram, 0);
+	if (Status != XST_SUCCESS)
+	{
+		return XST_FAILURE;
+	}
+
 }
