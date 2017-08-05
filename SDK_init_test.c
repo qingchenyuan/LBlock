@@ -12,16 +12,22 @@
 #include "xuartps.h"
 #include "xuartps_hw.h"
 #include "xbram.h"
+#include "xsdps.h"
+#include "ff.h"
+#include "xil_cache.h"
 
-XUartPs UartPs;
-XUartPs_Config *UartPs_Config;
-XCodec Codec;
-XBram_Config *Bram_Config;
-XBram Bram;
+	XUartPs UartPs;
+	XUartPs_Config *UartPs_Config;
+	XCodec Codec;
+	XBram_Config *Bram_Config;
+	XBram Bram;
+	FATFS *fs;
+	FIL file1;
+	FIL file2;
+	FRESULT result;
+	TCHAR *Path = "0:/";
 
 void init_LBlock();
-
-
 
 int main()
 {
@@ -32,9 +38,11 @@ int main()
 	return 0;
 }
 
+
 void init_LBlock()
 {
-	int Status =0;
+
+	int Status = 0;
 	UartPs_Config = XUartPs_LookupConfig(XPAR_XUARTPS_0_DEVICE_ID);
 	if (UartPs_Config == NULL)
 	{
@@ -69,5 +77,11 @@ void init_LBlock()
 	{
 		return XST_FAILURE;
 	}
-
+	fs = malloc(sizeof(FATFS));
+	result = f_mount(fs,Path,0);
+	if (result != 0)
+	{
+		xil_printf("ERROR: f_mount failed %d\r\n", result);
+		return XST_FAILURE;
+	}
 }
