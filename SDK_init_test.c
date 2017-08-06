@@ -16,23 +16,34 @@
 #include "ff.h"
 #include "xil_cache.h"
 
-	XUartPs UartPs;
-	XUartPs_Config *UartPs_Config;
-	XCodec Codec;
-	XBram_Config *Bram_Config;
-	XBram Bram;
-	FATFS *fs;
-	FIL file1;
-	FIL file2;
-	FRESULT result;
-	TCHAR *Path = "0:/";
+XUartPs UartPs;
+XUartPs_Config *UartPs_Config;
+XCodec Codec;
+XBram_Config *Bram_Config;
+XBram Bram;
+FATFS *fs;
+FIL file1;
+FIL file2;
+FRESULT result;
+TCHAR *Path = "0:/";
+
 
 void init_LBlock();
+
+//uint64_t mem_arr[1024];
+u64 mem_arr[1024];// long long unsigned int, 64 bit,8 byte,1024行64bit，因为明文是64bit
+// point to the BRAM Controllers(which controls the block rams)
+u32 *BRAM1_mem = (u32 *)0x40000000;// 存储text的地方，0x后面8位，即8x4=32bit
+u32 *BRAM2_mem = (u32 *)0x42000000;// 给了地址启示位，存储ans的地方
+u64 mem_buff[10000];
 
 int main()
 {
 	init_platform();
 	init_LBlock();
+	*BRAM1_mem = 0x10;
+	*(BRAM1_mem+8)=0x11111111;
+	*BRAM2_mem = 0xffffffff;
 	xil_printf("finished");
 	cleanup_platform();
 	return 0;
