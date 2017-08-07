@@ -47,13 +47,13 @@ int main()
 	xil_printf("finished");*/
 	char a;
 	int b;
-	a = 'a';
-	b = (unsigned int)a;
-	xil_printf("the value is %d\n",b);
+	b = 98;
+	a = (char)b;
+	xil_printf("the value is %c\n",a);
 	cleanup_platform();
 	return 0;
 }
-//测试字符强制转换，结果是字符a对应的97，运行结果是the value is 97
+//测试整数转字符，运行结果是the value is b
 
 void init_LBlock()
 {
