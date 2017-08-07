@@ -40,15 +40,20 @@ u64 mem_buff[10000];
 int main()
 {
 	init_platform();
-	init_LBlock();
+	/*init_LBlock();
 	*BRAM1_mem = 0x10;
 	*(BRAM1_mem+8)=0x11111111;
 	*BRAM2_mem = 0xffffffff;
-	xil_printf("finished");
+	xil_printf("finished");*/
+	char a;
+	int b;
+	a = 'a';
+	b = (unsigned int)a;
+	xil_printf("the value is %d\n",b);
 	cleanup_platform();
 	return 0;
 }
-
+//测试字符强制转换，结果是字符a对应的97，运行结果是the value is 97
 
 void init_LBlock()
 {
