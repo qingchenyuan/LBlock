@@ -69,11 +69,11 @@ XUartPs UartPs;
 XUartPs_Config *UartPs_Config;
 XCodec Codec;
 FATFS FS_Instance;
-FIL file1;
-FIL file2;
-FIL file3;
-FIL file4;
-FIL file5;
+FIL file1;//Text.txt
+FIL file2;//Decrypt.txt
+FIL file3;//Cipher.txt
+FIL file4;//KeyEnc.txt
+FIL file5;//KeyDec.txt
 FRESULT result;
 TCHAR *Path = "0:/";
 XTime tStart, tEnd;
@@ -100,8 +100,7 @@ unsigned int text_in_front, text_in_back, text_in_front_temp;
 int num;
 int error, error1, temp_c;
 int c;
-long long p, q, n, z, flag, public_key[100], private_key[100], mem[100], j,
-              m[100], encrypt[100], decrypt[100];
+long long p, q, n, z, flag, public_key[100], private_key[100], mem[100], j,m[100], encrypt[100], decrypt[100];
 unsigned int character[100];
 char message[100];
 long long pub_key_n, pub_key_e;
@@ -113,8 +112,10 @@ int ind;
 int loop_var2;
 u64 mem_buff[10000];
 int loop_var;
-int Is_Prime(long long number) {
-       for (i = 2; i <= number - 1; i++) {
+int Is_Prime(long long number) 
+{
+       for (i = 2; i <= number - 1; i++) 
+       {
               if (number % i == 0)
                      return 0;
        }
@@ -129,53 +130,62 @@ u64 text_out = 0;
 u16 a = 0;
 u64 b = 0;
 u32 mod = 0;
-int main() {
+int main() 
+{
        init_platform();
        int Status;
        XTime_GetTime(&tStart);
        UartPs_Config = XUartPs_LookupConfig(XPAR_XUARTPS_0_DEVICE_ID);
-       if (NULL == UartPs_Config) {
+       if (NULL == UartPs_Config) 
+       {
               return XST_FAILURE;
        }
        Status = XUartPs_CfgInitialize(&UartPs, UartPs_Config,
                      UartPs_Config->BaseAddress);
-       if (Status != XST_SUCCESS) {
+       if (Status != XST_SUCCESS) 
+       {
               return XST_FAILURE;
        }
        Status = XUartPs_SelfTest(&UartPs);
-       if (Status != XST_SUCCESS) {
+       if (Status != XST_SUCCESS)
+       {
               return XST_FAILURE;
        }
        Status = XCodec_Initialize(&Codec, XPAR_CODEC_0_DEVICE_ID);
-       if (Status != XST_SUCCESS) {
+       if (Status != XST_SUCCESS) 
+       {
               return XST_FAILURE;
        }
        Bram_Config = XBram_LookupConfig(XPAR_AXI_BRAM_CTRL_0_DEVICE_ID);
        Status = XBram_CfgInitialize(&Bram, Bram_Config,
                      Bram_Config->CtrlBaseAddress);
-       if (Status != XST_SUCCESS) {
+       if (Status != XST_SUCCESS) 
+       {
               return XST_FAILURE;
        }
        Status = XBram_SelfTest(&Bram, 0);
-       if (Status != XST_SUCCESS) {
+       if (Status != XST_SUCCESS) 
+       {
               return XST_FAILURE;
        }
        result = f_mount(&FS_Instance, Path, 0);
-       if (result != 0) {
+       if (result != 0) 
+       {
               xil_printf("ERROR: f_mount returned %d\r\n", result);
               return XST_FAILURE;
        }
        XTime_GetTime(&tEnd);
-       while (1) {
-              xil_printf(
-                           "\nPLEASE SELECT A MODE OF OPERATION (1 - ENCRYPTION, 0 - DECRYPTION)AND PRESS ENTER: ");
+       while (1) 
+       {
+              xil_printf("\nPLEASE SELECT A MODE OF OPERATION (1 - ENCRYPTION, 0 - DECRYPTION)AND PRESS ENTER: ");
               c = 0;
               p = 0;
               q = 0;
               n = 0;
               z = 0;
               j = 0;
-              while (1) {
+              while (1) 
+              {
                      c = XUartPs_RecvByte(UartPs_Config->BaseAddress);
                      if (c == 13)
                            break;
@@ -184,53 +194,62 @@ int main() {
                      else if (c == 49)
                            mod = 1;
               }
-              if (mod == 1) {
+			  //不同mode下不同的SD卡里文件打开和创建的的方式
+              if (mod == 1) 
+              {
                      result = f_open(&file1, "Text.txt", FA_READ);
-                     if (result != 0) {
+                     if (result != 0) 
+                     {
                            xil_printf("ERROR: f_read returned %d\r\n", result);
                            return XST_FAILURE;
                      }
-                     result = f_open(&file3, "Cipher.txt",
-                     FA_CREATE_ALWAYS | FA_WRITE);
-                     if (result != 0) {
+                     result = f_open(&file3, "Cipher.txt",FA_CREATE_ALWAYS | FA_WRITE);
+                     if (result != 0) 
+                     {
                            xil_printf("ERROR: f_read returned %d\r\n", result);
                            return XST_FAILURE;
                      }
-                     result = f_open(&file4, "KeyEnc.txt",
-                     FA_CREATE_ALWAYS | FA_WRITE);
-                     if (result != 0) {
+                     result = f_open(&file4, "KeyEnc.txt",FA_CREATE_ALWAYS | FA_WRITE);
+                     if (result != 0) 
+                     {
                            xil_printf("ERROR: f_read returned %d\r\n", result);
                            return XST_FAILURE;
                      }
               }
-              if (mod == 0) {
-                     result = f_open(&file3, "Cipher.txt",
-                     FA_READ);
-                     if (result != 0) {
+              if (mod == 0) 
+              {
+                     result = f_open(&file3, "Cipher.txt",FA_READ);
+                     if (result != 0) 
+                     {
                            xil_printf("ERROR: f_read returned %d\r\n", result);
                            return XST_FAILURE;
                      }
                      result = f_open(&file4, "KeyEnc.txt",
                      FA_READ);
-                     if (result != 0) {
+                     if (result != 0)
+                     {
                            xil_printf("ERROR: f_read returned %d\r\n", result);
                            return XST_FAILURE;
                      }
                      result = f_open(&file5, "KeyDec.txt",
                      FA_CREATE_ALWAYS | FA_WRITE);
-                     if (result != 0) {
+                     if (result != 0) 
+                     {
                            xil_printf("ERROR: f_read returned %d\r\n", result);
                            return XST_FAILURE;
                      }
                      result = f_open(&file2, "Decrypt.txt",
                      FA_CREATE_ALWAYS | FA_WRITE);
-                     if (result != 0) {
+                     if (result != 0)
+                     {
                            xil_printf("ERROR: f_read returned %d\r\n", result);
                            return XST_FAILURE;
                      }
               }
-              int init;
-              for (init = 0; init < 100; init++) {
+              //为了下面master key, RSA加密，解密key初始化一些变量
+			  int init;
+              for (init = 0; init < 100; init++) 
+              {
                      public_key[init] = 0;
                      private_key[init] = 0;
                      mem[init] = 0;
@@ -238,18 +257,23 @@ int main() {
                      encrypt[init] = 0;
                      decrypt[init] = 0;
               }
-              if (mod == 1) {
+			  //加密模式下，创建public key并用RSA来加密master key,创建master key分随机和手动输入
+              if (mod == 1) 
+              {
                      xil_printf(
                                   "\nWOULD YOU LIKE YO USE THE RANDOM KEY GENERATOR TO GENERATE A KEY [Y/N]? ");
                      c = 0;
-                     while (1) {
+                     while (1) 
+                     {
                            c = XUartPs_RecvByte(UartPs_Config->BaseAddress);
                            if (c == 13)
                                   break;
                            else
                                   temp_c = c;
                      }
-                     if (temp_c == 89 || temp_c == 121) {
+					 //随机输入master key
+                     if (temp_c == 89 || temp_c == 121) 
+                     {
                            srand(tEnd - tStart);
                            a = rand() % 65535;
                            xil_printf("\nTHE GENERATED KEY IS: %x", (unsigned int) a);
@@ -260,23 +284,28 @@ int main() {
                            b_back = b & 0x00000000FFFFFFFF;
                            b_front_temp = 0;
                            num = 0;
-                           for (num = 1; num <= 8; num++) {
+                           for (num = 1; num <= 8; num++)
+                           {
                                   b_front_temp = b_front >> (32 - (4 * num));
                                   xil_printf("%x", b_front_temp & 0xF);
                            }
-                           for (num = 1; num <= 8; num++) {
+                           for (num = 1; num <= 8; num++)
+                           {
                                   b_back = b >> (32 - (4 * num));
                                   xil_printf("%x", b_back & 0xF);
                            }
                            xil_printf("\n");
-                     } else {
-                           xil_printf(
-                                         "\nPLEASE ENTER THE 80-BIT MASTERKEY IN HEXADECIMAL FORM (20 CHARACTERS TOTAL) AND PRESS ENTER: ");
-                           a = 0;
-                           b = 0;
-                           c = 0;
-                           count_sym = 0;
-                           while (1) {
+                     }
+                     //手动输入master key
+                     else 
+                     {
+                         xil_printf("\nPLEASE ENTER THE 80-BIT MASTERKEY IN HEXADECIMAL FORM (20 CHARACTERS TOTAL) AND PRESS ENTER: ");
+                         a = 0;
+                         b = 0;
+                         c = 0;
+                         count_sym = 0;
+                         while (1) 
+                         {
                                   c = XUartPs_RecvByte(UartPs_Config->BaseAddress);
                                   temp_c = c;
                                   if (c == 13)
@@ -337,6 +366,7 @@ int main() {
                                   }
                            }
                      }
+					 //为了创建public key需要选择两个素数
                      unsigned long long key;
                      xil_printf("\nENTER FIRST PRIME NUMBER: ");
                      c = 0;
@@ -466,12 +496,14 @@ int main() {
                            }
                      }
                      xil_printf("\n");
-                     result = f_write(&file4, encrypt, 160, &count4);
+                     result = f_write(&file4, encrypt, 160, &count4);//把用RSA加密过的master key放到SD卡里
                      if (result != 0) {
                            xil_printf("\nERROR: f_write returned %d\r\n", result);
                      }
               }
-              if (mod == 0) {
+			  //解密模式下，把加密过的master key,用RSA还原
+              if (mod == 0) 
+			 {
                      xil_printf("\nPLEASE ENTER THE PUBLIC KEY USED:\n");
                      xil_printf("\nN = ");
                      c = 0;
@@ -584,12 +616,16 @@ int main() {
                      }
                      xil_printf("\n");
               }
-              count = 8;
+              //之前都是key方面的现在下面根据mod不同，对明文或密文进行预处理,放到mem_buff里
+			  count = 8;
               ind = 0;
-              while (count == 8) {
-                     if (mod == 1) {
+              while (count == 8) 
+			 {
+                     if (mod == 1) 
+					 {
                            result = f_read(&file1, buff, 8, &count);
-                           if (result != 0) {
+                           if (result != 0) 
+						   {
                                   xil_printf("ERROR: f_read returned %d\r\n", result);
                                   return XST_FAILURE;
                            }
@@ -714,8 +750,11 @@ int main() {
               xil_printf("\n");
               ind = 0;
               int ind_count = 0;
+			  //对mem_buff进行处理，根据不同的mode
               while (mem_buff[ind] != 0) {
-                     if (mod == 1) {
+                     	//加密模式下
+						if (mod == 1) 
+						{
                            //loop_var = 1;
                            //for(mem_count=0; mem_count<2048; mem_count++)
                            //{
@@ -788,7 +827,8 @@ int main() {
                                   ind_count = 0;
                            }
                      }
-                     if (mod == 0) {
+                     //解密模式下
+					if (mod == 0) {
                            //loop_var = 0;
                            //mem_count = 0;
                            //for(mem_count=0; mem_count<2048; mem_count++)
@@ -868,6 +908,7 @@ int main() {
                            }
                      }
               }
+			  //
               if (mod == 1) {
                      if (XCodec_IsIdle(&Codec)) {
                            XCodec_Set_a(&Codec, a);
