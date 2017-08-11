@@ -4,7 +4,7 @@
 
 using namespace std; //used for the cin/cout/endl etc. commands
 
-void roundkey_80(uint16_t a, uint64_t b,unsigned int rk[rounds] )
+void roundkey(uint16_t a, uint64_t b,uint32_t rounds,unsigned int rk[rounds] )
 { //Key Scheduling
 	unsigned int i;
 	uint16_t temp_a,temp1,temp2;
@@ -97,7 +97,7 @@ void codec(uint64_t text[1024], uint16_t a, uint64_t b,uint32_t rounds, bool mod
 		{
 			left = (text[j]>>32) & 0xFFFFFFFF;
 			right = text[j] & 0xFFFFFFFF;
-			roundkey_80(a,b,rk1); //calculating the roundkey
+			roundkey(a,b,rounds,rk1); //calculating the roundkey
 
 
 

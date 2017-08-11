@@ -1,5 +1,5 @@
-#ifndef _lblock_H_
-#define _lblock_H_
+#ifndef _lblock_4_version_H_
+#define _lblock_4_version_H_
 
 #include <iostream> //include a standard library
 #include <stdio.h> //include a standard library
@@ -20,9 +20,9 @@ const unsigned short S[10][16]={
 							   {8,7,14,5,15,13,0,6,11,12,9,10,2,4,1,3}, // The S-box values as presented in the report
 							   {11,5,15,0,7,2,9,13,4,8,1,12,14,10,3,6}};
 const unsigned short P[32] = { 0, 8, 16, 24, 4, 12, 20, 28, 1, 9, 17, 25, 5, 13, 21, 29, 2, 10, 18, 26, 6, 14, 22, 30, 3, 11, 19, 27, 7, 15, 23, 31 };//new bit permutation
-const unsigned int rounds=32; //number of rounds
+//const unsigned int rounds=32; //number of rounds
 
-void roundkey(uint16_t a, uint64_t b,unsigned int rk[rounds]);
+void roundkey(uint16_t a, uint64_t b,uint32_t rounds,unsigned int rk[rounds]);
 unsigned int S_Layer(unsigned int x);
 unsigned int P_Layer(unsigned int x);
 unsigned int F(unsigned int x, unsigned int k);
