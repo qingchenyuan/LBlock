@@ -52,14 +52,13 @@ u64 text_out =0;
 int ind;
 static uint16_t a = 0xf;//随便给一些master key的值做测试
 static uint64_t b = 0xf;
-static u32 mod = 1;
 
 int main()
 {
 	init_platform();
 	u32 mod;
-	xil_printf("choose mod: ");
-	scanf("%d",&mod);
+	xil_printf("choose mod (1-encryption,0-decryption): ");
+	scanf("%ld",&mod);
 	/*init_LBlock();
 	file_mangement();
 	read_from_SD();
@@ -152,6 +151,7 @@ int main()
 				return XST_FAILURE;
 			}
 		    text_in = 0;
+		    if(count1 == 0) break;
 		    xil_printf("the plaintext is ");
 		    for(int i =0; i < count1;i++)
 		    {
@@ -173,6 +173,7 @@ int main()
 				return XST_FAILURE;
 			}
 		    text_in = 0;
+		    if(count1 == 0) break;
 		    xil_printf("the ciphertext is ");
 		    for(int i =0; i < count1;i++)
 		    {
@@ -200,7 +201,7 @@ int main()
 			ind_count++;
 			BRAM1_mem[ind_count] = (((mem_buff[ind]) >> 32) & 0xffffffff);
 			ind_count++;
-			xil_printf("the plaintext stored in BRAM is %x%x\n",BRAM1_mem[ind_count -1],BRAM1_mem[ind_count -2]);
+			xil_printf("the plaintext(HEX) stored in BRAM is %x%x\n",BRAM1_mem[ind_count -1],BRAM1_mem[ind_count -2]);
 			ind++;
 			//if BRAM is full or finished
 			if(((ind -1) != 0 && (ind-1) % 1023 == 0) || mem_buff[ind]==0)
@@ -261,7 +262,7 @@ int main()
 			ind_count++;
 			BRAM1_mem[ind_count] = (((mem_buff[ind]) >> 32) & 0xffffffff);
 			ind_count++;
-			xil_printf("the ciphertext stored in BRAM is %x%x\n",BRAM1_mem[ind_count -1],BRAM1_mem[ind_count -2]);
+			xil_printf("the ciphertext(HEX) stored in BRAM is %x%x\n",BRAM1_mem[ind_count -1],BRAM1_mem[ind_count -2]);
 			ind++;
 			//if BRAM is full or finished
 			if(((ind -1) != 0 && (ind-1) % 1023 == 0) || mem_buff[ind]==0)
@@ -593,6 +594,5 @@ void encrypt_decrypt()
 	}
 
 
-}
-*/
+}*/
 
