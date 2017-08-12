@@ -32,7 +32,7 @@ TCHAR *Path = "0:/";
 void init_LBlock();
 void file_mangement(u32 mod);
 void read_from_SD(u32 mod);
-void encrypt_decrypt(uint16_t a,uint64_t b,u32 mod);
+void encrypt_decrypt(uint16_t a,uint64_t b,uint32_t rounds,u32 mod);
 
 //uint64_t mem_arr[1024];
 u64 mem_arr[1024];// long long unsigned int, 64 bit,8 byte,1024行64bit，因为明文是64bit
@@ -56,13 +56,18 @@ int main()
 	init_platform();
 	uint16_t a = 0xf;//随便给一些master key的值做测试
 	uint64_t b = 0xf;
+	uint32_t rounds;
 	u32 mod;
 	xil_printf("choose mod (1-encryption,0-decryption): ");
 	scanf("%ld",&mod);
+	xil_printf("\n");
+	xil_printf("choose the number of rounds: ");
+	scanf("%ld",&rounds);
+	xil_printf("\n");
 	init_LBlock();
 	file_mangement(mod);
 	read_from_SD(mod);
-	encrypt_decrypt(a,b,mod);
+	encrypt_decrypt(a,b,rounds,mod);
 	f_close(&file1);
 	f_close(&file2);
 	cleanup_platform();
@@ -203,7 +208,7 @@ void read_from_SD(u32 mod)
 	}
 	xil_printf("\n");
 }
-void encrypt_decrypt(uint16_t a,uint64_t b,u32 mod)
+void encrypt_decrypt(uint16_t a,uint64_t b,uint32_t rounds,u32 mod)
 {
 	//开始吧数据存到BRAM里
 	ind=0;
@@ -225,6 +230,7 @@ void encrypt_decrypt(uint16_t a,uint64_t b,u32 mod)
 				{
 					XCodec_Set_a(&Codec, a);
 					XCodec_Set_b(&Codec, b);
+					XCodec_Set_rounds(&Codec,rounds);
 					XCodec_Set_mod_r(&Codec, mod);
 					XCodec_Start(&Codec);
 				}
@@ -286,6 +292,7 @@ void encrypt_decrypt(uint16_t a,uint64_t b,u32 mod)
 				{
 					XCodec_Set_a(&Codec, a);
 					XCodec_Set_b(&Codec, b);
+					XCodec_Set_rounds(&Codec, rounds);
 					XCodec_Set_mod_r(&Codec, mod);
 					XCodec_Start(&Codec);
 				}
