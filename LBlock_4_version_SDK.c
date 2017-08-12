@@ -60,10 +60,8 @@ int main()
 	u32 mod;
 	xil_printf("choose mod (1-encryption,0-decryption): ");
 	scanf("%ld",&mod);
-	xil_printf("\n");
 	xil_printf("choose the number of rounds: ");
 	scanf("%ld",&rounds);
-	xil_printf("\n");
 	init_LBlock();
 	file_mangement(mod);
 	read_from_SD(mod);
