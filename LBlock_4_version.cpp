@@ -117,7 +117,7 @@ void codec(uint64_t text[1024], uint16_t a, uint64_t b,uint32_t rounds, bool mod
 			{
 				for(int i=0;i<rounds;i++)
 				{
-					right^=F(left,rk1[31-i]); //calculate the round function F
+					right^=F(left,rk1[rounds-1-i]); //calculate the round function F
 					right=(right>>20)^(right<<12);//right rotation 20bit
 					swap(&left,&right); //swap the two parts of the text as in the picture in the paper; pass the addresses of left and right as arguments
 				}
