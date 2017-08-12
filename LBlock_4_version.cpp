@@ -1,10 +1,10 @@
 #include <time.h>
-#include "LBlock_4_version.h"
+#include "LBlock.h"
 #include <stdio.h>
 
 using namespace std; //used for the cin/cout/endl etc. commands
 
-void roundkey(uint16_t a, uint64_t b,uint32_t rounds,unsigned int rk[rounds] )
+void roundkey(uint16_t a, uint64_t b,uint32_t rounds,unsigned int rk[32] )
 { //Key Scheduling
 	unsigned int i;
 	uint16_t temp_a,temp1,temp2;
@@ -89,7 +89,7 @@ void codec(uint64_t text[1024], uint16_t a, uint64_t b,uint32_t rounds, bool mod
 
 	unsigned int i; //a simple variable used for control of the loop below
 	unsigned int left, right; //2x32-bit variables used to store the split into two 32-bit parts plain text
-	unsigned int rk1[rounds]; // an array used to store the roundkey
+	unsigned int rk1[32]; // an array used to store the roundkey
 
 	for(int j=0; j<1024; j++)
 	{
