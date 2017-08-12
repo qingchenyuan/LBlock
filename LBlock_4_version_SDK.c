@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
@@ -203,3 +204,138 @@ void read_from_SD(u32 mod)
 	xil_printf("\n");
 }
 void encrypt_decrypt(uint16_t a,uint64_t b,u32 mod)
+{
+	//开始吧数据存到BRAM里
+	ind=0;
+	int ind_count = 0;
+	while (mem_buff[ind] != 0)
+	{
+		if(mod == 1)
+		{
+			BRAM1_mem[ind_count] = ((mem_buff[ind]) & 0xffffffff);
+			ind_count++;
+			BRAM1_mem[ind_count] = (((mem_buff[ind]) >> 32) & 0xffffffff);
+			ind_count++;
+			xil_printf("the plaintext stored in BRAM is %x%x\n",BRAM1_mem[ind_count -1],BRAM1_mem[ind_count -2]);
+			ind++;
+			//if BRAM is full or finished
+			if(((ind -1) != 0 && (ind-1) % 1023 == 0) || mem_buff[ind]==0)
+			{
+				if(XCodec_IsIdle(&Codec))
+				{
+					XCodec_Set_a(&Codec, a);
+					XCodec_Set_b(&Codec, b);
+					XCodec_Set_mod_r(&Codec, mod);
+					XCodec_Start(&Codec);
+				}
+				mem_count =0;
+				xil_printf("\n");
+				while(1)
+				{
+					if(XCodec_IsDone(&Codec))
+					{
+						//usleep(36);
+						for(mem_count = 0;mem_count < 2048;mem_count +=2)
+						{
+							if(BRAM2_mem[mem_count + 1] != 0 || BRAM2_mem[mem_count] != 0)
+							{
+								xil_printf("the ciphertext(HEX) are: %x%x\n",BRAM2_mem[mem_count + 1],BRAM2_mem[mem_count]);
+								text_out = BRAM2_mem[mem_count + 1];
+								text_out = text_out << 32;
+								text_out ^= BRAM2_mem[mem_count];
+								if(text_out != 0)
+								{
+									xil_printf("the ciphertext(characters) are: ");
+									for(int i = 0; i<=7;i++)
+									{
+										buff2[i] = text_out >> (56-(8*i)) & 0xff;
+										xil_printf("%c",buff2[i]);
+									}
+									xil_printf("\n");
+									result = f_write(&file2,buff2,8,&count2);
+									if(result != 0)
+									{
+										xil_printf("ERROR: f_write Cipher.txt failed,return %d\n",result);
+									}
+								}
+							}
+						}
+						break;
+					}
+				}
+				for(int i = 0; i < 2048; i++)
+				{
+					BRAM1_mem[i] = 0;
+					BRAM2_mem[i] = 0;
+				}
+				ind_count = 0;
+			}
+		}
+		if(mod == 0)
+		{
+			BRAM1_mem[ind_count] = ((mem_buff[ind]) & 0xffffffff);
+			ind_count++;
+			BRAM1_mem[ind_count] = (((mem_buff[ind]) >> 32) & 0xffffffff);
+			ind_count++;
+			xil_printf("the ciphertext stored in BRAM is %x%x\n",BRAM1_mem[ind_count -1],BRAM1_mem[ind_count -2]);
+			ind++;
+			//if BRAM is full or finished
+			if(((ind -1) != 0 && (ind-1) % 1023 == 0) || mem_buff[ind]==0)
+			{
+				if(XCodec_IsIdle(&Codec))
+				{
+					XCodec_Set_a(&Codec, a);
+					XCodec_Set_b(&Codec, b);
+					XCodec_Set_mod_r(&Codec, mod);
+					XCodec_Start(&Codec);
+				}
+				mem_count =0;
+				xil_printf("\n");
+				while(1)
+				{
+					if(XCodec_IsDone(&Codec))
+					{
+						//usleep(36);
+						for(mem_count = 0;mem_count < 2048;mem_count +=2)
+						{
+							if(BRAM2_mem[mem_count + 1] != 0 || BRAM2_mem[mem_count] != 0)
+							{
+								xil_printf("the plaintext(HEX) are: %x%x\n",BRAM2_mem[mem_count + 1],BRAM2_mem[mem_count]);
+								text_out = BRAM2_mem[mem_count + 1];
+								text_out = text_out << 32;
+								text_out ^= BRAM2_mem[mem_count];
+								if(text_out != 0)
+								{
+									xil_printf("the plaintext(characters) are: ");
+									for(int i = 0; i<=7;i++)
+									{
+										buff2[i] = text_out >> (56-(8*i)) & 0xff;
+										xil_printf("%c",buff2[i]);
+									}
+									xil_printf("\n");
+									result = f_write(&file1,buff2,8,&count2);
+									if(result != 0)
+									{
+										xil_printf("ERROR: f_write Text.txt failed,return %d\n",result);
+									}
+								}
+							}
+						}
+						break;
+					}
+				}
+				for(int i = 0; i < 2048; i++)
+				{
+					BRAM1_mem[i] = 0;
+					BRAM2_mem[i] = 0;
+				}
+				ind_count = 0;
+			}
+		}
+
+	}
+
+
+}
+
+
