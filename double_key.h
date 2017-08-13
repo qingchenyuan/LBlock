@@ -22,11 +22,12 @@ const unsigned short S[10][16]={
 const unsigned short P[32] = { 0, 8, 16, 24, 4, 12, 20, 28, 1, 9, 17, 25, 5, 13, 21, 29, 2, 10, 18, 26, 6, 14, 22, 30, 3, 11, 19, 27, 7, 15, 23, 31 };//new bit permutation
 const unsigned int rounds=32; //number of rounds
 
-void roundkey(uint16_t a, uint64_t b,unsigned int rk[rounds]);
+void roundkey_less(uint16_t a, uint64_t b,unsigned int rk[rounds] );
+void roundkey_more(uint64_t c, uint64_t d,unsigned int rk[rounds] );
 unsigned int S_Layer(unsigned int x);
 unsigned int P_Layer(unsigned int x);
 unsigned int F(unsigned int x, unsigned int k);
 void swap(unsigned int *left, unsigned int *right);
-void codec(uint64_t text[1024], uint16_t a, uint64_t b, bool mod, uint64_t ans[1024]);
+void codec(uint64_t text[1024], uint16_t a, uint64_t b,uint64_t c,uint64_t d,uint32_t keymod, bool mod, uint64_t ans[1024]);
 
 #endif

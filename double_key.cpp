@@ -4,7 +4,7 @@
 
 using namespace std; //used for the cin/cout/endl etc. commands
 
-void roundkey(uint16_t a, uint64_t b,unsigned int rk[rounds] )
+void roundkey_less(uint16_t a, uint64_t b,unsigned int rk[rounds] )
 { //Key Scheduling
 	unsigned int i;
 	uint16_t temp_a,temp1,temp2;
@@ -30,6 +30,34 @@ void roundkey(uint16_t a, uint64_t b,unsigned int rk[rounds] )
 		b=(b&0xFFF8000000000000)^(temp_5<<46)^(b&0x3FFFFFFFFFFF); //update the value of b
 		temp1 = (b>>48)&0xFFFF;//take the 16 most significant bits of b
 		rk[i]=(a<<16)^ temp1;//Output the leftmost 32 bits of the current master key as a round subkey
+	}
+}
+void roundkey_more(uint64_t c, uint64_t d,unsigned int rk[rounds] )
+{ //Key Scheduling
+	uint64_t temp_c,temp_d,temp1,temp2,temp3;
+	unsigned int i;
+	rk[0] = c>>32;
+	for(i=1;i<rounds;i++)
+	{
+		//K<<<29
+		temp_c = c>>35;
+		temp_d = d>>29;
+		c = c<<29;
+		d = d>>35;
+		c = c^d;
+		d = (temp_d<<29)^temp_c;
+		//SS替换
+		temp1 = (c>>60)&0xF;
+		temp2 = (c>>56)&0xF;
+		temp1 = S[9][temp1];
+		temp2 = S[8][temp2];
+		c = (temp1<<60)^(temp2<<56)^(c&0xffffffffffffff);
+		// XOR  round counter
+		temp3 = d>>60;
+		temp3 ^= i;
+		d = (temp3<<60)^(d>>4);
+		// left-most 32 bit
+		rk[i] = c>>32;
 	}
 }
 
@@ -76,7 +104,7 @@ void swap(unsigned int *left, unsigned int *right)//A function used to swap the 
 	(*right)=temp; //pass the value of temp (left) to right
 }
 
-void codec(uint64_t text[1024], uint16_t a, uint64_t b, bool mod, uint64_t ans[1024])
+void codec(uint64_t text[1024], uint16_t a, uint64_t b,uint64_t c,uint64_t d,uint32_t keymod, bool mod, uint64_t ans[1024])
 {
 	#pragma HLS interface bram port=ans //a command, which allow the AXI4-Lite (s_axilite) interface to be introduced
 	#pragma HLS RESOURCE variable=ans core=RAM_1P_BRAM
@@ -86,6 +114,9 @@ void codec(uint64_t text[1024], uint16_t a, uint64_t b, bool mod, uint64_t ans[1
 	#pragma HLS interface s_axilite port=a bundle=s_axi //a command, which allow the AXI4-Lite (s_axilite) interface to be introduced
 	#pragma HLS interface s_axilite port=b bundle=s_axi //a command, which allow the AXI4-Lite (s_axilite) interface to be introduced
 	#pragma HLS interface s_axilite port=mod bundle=s_axi //a command, which allow the AXI4-Lite (s_axilite) interface to be introduced
+	#pragma HLS interface s_axilite port=c bundle=s_axi
+	#pragma HLS interface s_axilite port=d bundle=s_axi
+	#pragma HLS interface s_axilite port=keymod bundle=s_axi
 
 	unsigned int i; //a simple variable used for control of the loop below
 	unsigned int left, right; //2x32-bit variables used to store the split into two 32-bit parts plain text
@@ -97,9 +128,14 @@ void codec(uint64_t text[1024], uint16_t a, uint64_t b, bool mod, uint64_t ans[1
 		{
 			left = (text[j]>>32) & 0xFFFFFFFF;
 			right = text[j] & 0xFFFFFFFF;
-			roundkey(a,b,rk1); //calculating the roundkey
-
-
+			if(keymod == 0)
+			{
+				roundkey_less(a,b,rk1); //calculating the roundkey
+			}
+			if(keymod == 1)
+			{
+				roundkey_more(c,d,rk1);
+			}
 
 			if (mod == 1)
 			{

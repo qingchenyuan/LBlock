@@ -4,7 +4,10 @@ int main()
 	int retval;
 	uint16_t a = 0xf;//随便给一些master key的值做测试
 	uint64_t b = 0xf;
+	uint64_t c = 0xf;
+	uint64_t d = 0xf;
 	uint64_t text2[1024], ans2[1024];//1024行明文，1024行密文
+	uint32_t keymod = 0;
 	bool mod2 = 1;//给mod一个初值
 	FILE *fp;
 	for(int j=0; j<1024; j++)
@@ -12,7 +15,7 @@ int main()
 		text2[j] = j+1;//组成了1024行明文，不断+1
 		ans2[j] = 0;//初始化密文，都为0
 	}
-	codec(text2, a, b, mod2, ans2);//返回得到1024行密文
+	codec(text2, a, b,c,d,keymod, mod2, ans2);//返回得到1024行密文
 	fp=fopen("result.dat","w");//创建result的文件
 	for(int j=0; j<1024; j++)
 	{
@@ -38,7 +41,7 @@ int main()
 			text2[j] = *(ans2+j);//这里的目的是把密文放进text里，*（ans2）是指向数组的指针,数组名ans2是一个指向&balance[0]的指针
 			ans2[j] = 0;//初始化，清空ans2数组
 		}
-	codec(text2, a, b, mod2, ans2);
+	codec(text2, a, b,c,d,keymod, mod2, ans2);
 	fp=fopen("result.dat","w");
 	for (int j=0; j<1024; j++)
 	{
